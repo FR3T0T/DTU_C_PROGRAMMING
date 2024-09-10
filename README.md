@@ -1,1 +1,1 @@
-# DTU_C_PROGRAMMING
+# 62712 Grundlæggende C programmering
