@@ -2,11 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 bool er_heltal(const char* s) {
-    char* endptr;
-    strtol(s, &endptr, 10);
-    return (*s != '\0' && *endptr == '\0');
+    if (*s == '\0') return false;  // Tom streng
+    if (*s == '-') s++;  // Spring over minus-tegnet hvis det er der
+    while (*s) {
+        if (!isdigit(*s)) return false;
+        s++;
+    }
+    return true;
 }
 
 bool er_delelig_med_5(int n) {
@@ -16,10 +21,16 @@ bool er_delelig_med_5(int n) {
 int main() {
     char input[100];
     printf("Indtast et heltal: ");
-    fgets(input, sizeof(input), stdin);
+    if (fgets(input, sizeof(input), stdin) == NULL) {
+        printf("Fejl ved læsning af input.\n");
+        return 1;
+    }
 
-    // Fjern newline character fra input
-    input[strcspn(input, "\n")] = 0;
+    // Fjern newline character fra input hvis den er der
+    size_t len = strlen(input);
+    if (len > 0 && input[len-1] == '\n') {
+        input[len-1] = '\0';
+    }
 
     if (er_heltal(input)) {
         int tal = atoi(input);
