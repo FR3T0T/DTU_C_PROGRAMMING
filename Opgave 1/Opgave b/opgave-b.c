@@ -20,5 +20,5 @@ int main() {
         printf("Sum er større end b. Ny værdi af a: %d\n", a);
     }
 
-    return 0;
+    //return 0;
 }
