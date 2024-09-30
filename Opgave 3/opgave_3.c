@@ -1,27 +1,30 @@
 /*
 // Opgave 3a
 #include <stdio.h>
+#include <limits.h>
 
-int count_int_bits() {
+void count_bits_in_int() {
     int n = 1;
     int bits = 0;
-    int previous = 0;
-
-    while (n > previous) {
-        previous = n;
-        n *= 2;
+    
+    while (1) {
+        int new_n = 2 * n;
+        if (new_n <= n) {
+            break;  // Overflow detected
+        }
+        n = new_n;
         bits++;
     }
-
-    return bits;
+    
+    printf("Antal bits i int: %d\n", bits);
 }
 
 int main() {
-    int result = count_int_bits();
-    printf("Antal bits i int: %d\n", result);
+    count_bits_in_int();
     return 0;
 }
 */
+
 
 
 /*
@@ -30,71 +33,66 @@ int main() {
 #include <math.h>
 
 double newton_raphson_sqrt(double N, int iterations) {
-    if (N < 0) {
-        printf("Fejl: Negativt input ikke tilladt.\n");
-        return -1;
+    double x_gammel = 1.0; // Start med et vilkårligt gæt
+    double x_ny;
+
+    for (int i = 0; i < iterations; i++) {
+        x_ny = 0.5 * (x_gammel + N / x_gammel);
+        x_gammel = x_ny;
     }
 
-    double x = 1; // Start gæt
-    for (int i = 0; i < iterations; i++) {
-        x = 0.5 * (x + N / x);
-    }
-    return x;
+    return x_ny;
 }
 
 int main() {
     double N;
-    int iterations = 10; // Antal iterationer
-
-    printf("Indtast et positivt tal for at beregne dets kvadratrod: ");
+    printf("Indtast et tal for at beregne dets kvadratrod: ");
     scanf("%lf", &N);
 
-    double result = newton_raphson_sqrt(N, iterations);
-    if (result != -1) {
-        printf("Beregnet kvadratrod af %.4f er %.4f\n", N, result);
-        printf("Faktisk kvadratrod (sqrt funktion): %.4f\n", sqrt(N));
-        printf("Forskel: %.4e\n", fabs(result - sqrt(N)));
+    if (N < 0) {
+        printf("Fejl: Kan ikke beregne kvadratroden af et negativt tal.\n");
+        return 1;
     }
+
+    double resultat = newton_raphson_sqrt(N, 10); // Bruger 10 iterationer
+
+    printf("N = %f\n", N);
+    printf("Beregnet kvadratrod = %f\n", resultat);
+    printf("Faktisk kvadratrod = %f\n", sqrt(N));
+    printf("Difference = %e\n", fabs(resultat - sqrt(N)));
+    printf("N * N = %f\n", resultat * resultat);
 
     return 0;
 }
 */
 
 
+
+/*
+// Opgave b option
 #include <stdio.h>
 #include <math.h>
 
 #define PI 3.14159265358979323846
 
-double integrate_sin(int n) {
-    double dx = PI / n;
+double sin_integral(double dx) {
     double sum = 0.0;
-    
-    for (int i = 0; i < n; i++) {
-        double x = i * dx;
+    for (double x = 0; x < PI; x += dx) {
         sum += sin(x) * dx;
     }
-    
     return sum;
 }
 
 int main() {
-    int n_values[] = {10, 100, 1000, 10000, 100000};
-    int n_count = sizeof(n_values) / sizeof(n_values[0]);
-    
-    printf("Numerisk integration af sin(x) fra 0 til pi:\n\n");
-    printf("   N      Approksimeret værdi    Fejl\n");
-    printf("----------------------------------------\n");
-    
-    for (int i = 0; i < n_count; i++) {
-        int n = n_values[i];
-        double result = integrate_sin(n);
-        double error = fabs(2.0 - result);  // Den teoretiske værdi er 2
-        
-        printf("%6d %20.12f %12.2e\n", n, result, error);
-    }
-    
-    printf("\nTeoretisk værdi: 2.000000000000\n");
-    
+    double dx = 0.0001; // En passende skridtlængde for god nøjagtighed
+    double numerisk_resultat = sin_integral(dx);
+    double teoretisk_resultat = 2.0; // Den kendte værdi af integralet
+
+    printf("Numerisk beregnet integral: %.8f\n", numerisk_resultat);
+    printf("Teoretisk værdi: %.8f\n", teoretisk_resultat);
+    printf("Absolut fejl: %.8f\n", fabs(numerisk_resultat - teoretisk_resultat));
+    printf("Relativ fejl: %.8f%%\n", fabs(numerisk_resultat - teoretisk_resultat) / teoretisk_resultat * 100);
+
     return 0;
 }
+*/
