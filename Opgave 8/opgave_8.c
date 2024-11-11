@@ -2,231 +2,134 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_NAME_LENGTH 50
-#define MAX_PHONE_LENGTH 15
+#define MAX_LEN 50
 #define MAX_PERSONS 100
-#define FILENAME "database.csv"
+#define DB_FILE "database.csv"
 
-// Struct for storing person information
-typedef struct
-{
-    char firstName[MAX_NAME_LENGTH];
-    char lastName[MAX_NAME_LENGTH];
-    char phoneNumber[MAX_PHONE_LENGTH];
+typedef struct {
+    char fname[MAX_LEN];
+    char lname[MAX_LEN];
+    char phone[MAX_LEN];
 } Person;
 
-// Global array of pointers to Person structs
-Person* database[MAX_PERSONS];
-int personCount = 0;
+Person* db[MAX_PERSONS];
+int count = 0;
 
-// Function prototypes
-void addPerson(const char* firstName, const char* lastName, const char* phoneNumber);
-Person* findPersonByPhone(const char* phoneNumber);
-void loadDatabase();
-void saveDatabase();
-void printPerson(const Person* person);
-void printAllPersons();
-void cleanup();
-
-// Add new person to database
-void addPerson(const char* firstName, const char* lastName, const char* phoneNumber)
-{
-    if (personCount >= MAX_PERSONS)
-    {
-        printf("Database is full!\n");
-        return;
-    }
-    
-    Person* newPerson = (Person*)malloc(sizeof(Person));
-    if (newPerson == NULL)
-    {
-        printf("Memory allocation error!\n");
-        return;
-    }
-    
-    strncpy(newPerson->firstName, firstName, MAX_NAME_LENGTH - 1);
-    strncpy(newPerson->lastName, lastName, MAX_NAME_LENGTH - 1);
-    strncpy(newPerson->phoneNumber, phoneNumber, MAX_PHONE_LENGTH - 1);
-    
-    newPerson->firstName[MAX_NAME_LENGTH - 1] = '\0';
-    newPerson->lastName[MAX_NAME_LENGTH - 1] = '\0';
-    newPerson->phoneNumber[MAX_PHONE_LENGTH - 1] = '\0';
-    
-    database[personCount++] = newPerson;
-    printf("Person added to database.\n");
+// Sikker input funktion
+void safe_input(char* dest, int max_len) {
+    char buffer[MAX_LEN * 2];
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = 0;
+    strncpy(dest, buffer, max_len - 1);
+    dest[max_len - 1] = 0;
 }
 
-// Find person by phone number
-Person* findPersonByPhone(const char* phoneNumber)
-{
-    for (int i = 0; i < personCount; i++)
-    {
-        if (strcmp(database[i]->phoneNumber, phoneNumber) == 0)
-        {
-            return database[i];
+void add_person() {
+    if (count >= MAX_PERSONS) {
+        printf("Database full!\n");
+        return;
+    }
+    
+    if (!(db[count] = malloc(sizeof(Person)))) {
+        printf("Memory error!\n");
+        return;
+    }
+    
+    while(getchar() != '\n'); // Clear buffer
+    printf("First name: ");
+    safe_input(db[count]->fname, MAX_LEN);
+    printf("Last name: ");
+    safe_input(db[count]->lname, MAX_LEN);
+    printf("Phone (8 digits): ");
+    safe_input(db[count]->phone, MAX_LEN);
+    
+    // Validate phone number
+    if(strlen(db[count]->phone) != 8 || strspn(db[count]->phone, "0123456789") != 8) {
+        printf("Invalid phone number!\n");
+        free(db[count]);
+        return;
+    }
+    count++;
+}
+
+void find_person() {
+    char phone[MAX_LEN];
+    printf("Enter phone: ");
+    while(getchar() != '\n');
+    safe_input(phone, MAX_LEN);
+    
+    for (int i = 0; i < count; i++)
+        if (!strcmp(db[i]->phone, phone)) {
+            printf("Found: %s %s, %s\n", 
+                   db[i]->fname, db[i]->lname, db[i]->phone);
+            return;
         }
-    }
-    return NULL;
+    printf("Not found!\n");
 }
 
-// Load database from file
-void loadDatabase()
-{
-    FILE* file = fopen(FILENAME, "r");
-    if (file == NULL)
-    {
-        printf("Could not open file for reading.\n");
-        return;
-    }
+void save_db() {
+    FILE* f = fopen(DB_FILE, "w");
+    if (!f) return;
+    for (int i = 0; i < count; i++)
+        fprintf(f, "%s,%s,%s\n", db[i]->fname, db[i]->lname, db[i]->phone);
+    fclose(f);
+    printf("Saved.\n");
+}
+
+void load_db() {
+    FILE* f = fopen(DB_FILE, "r");
+    char line[MAX_LEN * 3];
+    if (!f) return;
     
-    char line[MAX_NAME_LENGTH * 2 + MAX_PHONE_LENGTH + 3];
-    char firstName[MAX_NAME_LENGTH];
-    char lastName[MAX_NAME_LENGTH];
-    char phoneNumber[MAX_PHONE_LENGTH];
-    
-    while (fgets(line, sizeof(line), file) != NULL && personCount < MAX_PERSONS)
-    {
-        // Remove newline if present
-        line[strcspn(line, "\n")] = 0;
-        
-        // Parse the line
-        if (sscanf(line, "%[^,],%[^,],%s", firstName, lastName, phoneNumber) == 3)
-        {
-            addPerson(firstName, lastName, phoneNumber);
-        }
+    while (count < MAX_PERSONS && fgets(line, sizeof(line), f)) {
+        if (!(db[count] = malloc(sizeof(Person)))) break;
+        if (sscanf(line, "%[^,],%[^,],%s", 
+            db[count]->fname, db[count]->lname, db[count]->phone) == 3)
+            count++;
+        else
+            free(db[count]);
     }
-    
-    fclose(file);
-    printf("Database loaded from file.\n");
+    fclose(f);
+    printf("Loaded %d records.\n", count);
 }
 
-// Save database to file
-void saveDatabase()
-{
-    FILE* file = fopen(FILENAME, "w");
-    if (file == NULL)
-    {
-        printf("Could not open file for writing.\n");
-        return;
-    }
-    
-    for (int i = 0; i < personCount; i++)
-    {
-        fprintf(file, "%s,%s,%s\n", 
-                database[i]->firstName,
-                database[i]->lastName,
-                database[i]->phoneNumber);
-    }
-    
-    fclose(file);
-    printf("Database saved to file.\n");
+void show_all() {
+    printf("\nAll persons:\n");
+    for (int i = 0; i < count; i++)
+        printf("%d. %s %s, %s\n", i+1, 
+               db[i]->fname, db[i]->lname, db[i]->phone);
 }
 
-// Print a single person
-void printPerson(const Person* person)
-{
-    if (person != NULL)
-    {
-        printf("Name: %s %s, Phone: %s\n",
-               person->firstName,
-               person->lastName,
-               person->phoneNumber);
-    }
+void cleanup() {
+    while(count > 0) free(db[--count]);
 }
 
-// Print all persons in database
-void printAllPersons()
-{
-    printf("\nAll persons in database:\n");
-    for (int i = 0; i < personCount; i++)
-    {
-        printf("%d. ", i + 1);
-        printPerson(database[i]);
-    }
-    printf("\n");
-}
-
-// Free allocated memory
-void cleanup()
-{
-    for (int i = 0; i < personCount; i++)
-    {
-        free(database[i]);
-    }
-    personCount = 0;
-}
-
-int main()
-{
+int main() {
     int choice;
-    char firstName[MAX_NAME_LENGTH];
-    char lastName[MAX_NAME_LENGTH];
-    char phoneNumber[MAX_PHONE_LENGTH];
-    
-    // Load existing database at startup
-    loadDatabase();
+    load_db();
     
     while (1) {
-        printf("\nPerson Database Menu:\n");
-        printf("1. Add person\n");
-        printf("2. Search for person (phone number)\n");
-        printf("3. Show all persons\n");
-        printf("4. Save database\n");
-        printf("5. Exit\n");
-        printf("Select (1-5): ");
-        
-        if (scanf("%d", &choice) != 1)
-        {
-            printf("Invalid choice!\n");
-            while (getchar() != '\n'); // Clear input buffer
+        printf("\nMenu:\n"
+               "1. Add person\n"
+               "2. Search by phone\n"
+               "3. Show all\n"
+               "4. Save\n"
+               "5. Exit\n"
+               "Choice: ");
+               
+        if (scanf("%d", &choice) != 1) {
+            while(getchar() != '\n');
+            printf("Invalid input!\n");
             continue;
         }
         
-        switch (choice)
-        {
-            case 1:
-                printf("Enter first name: ");
-                scanf("%s", firstName);
-                printf("Enter last name: ");
-                scanf("%s", lastName);
-                printf("Enter phone number: ");
-                scanf("%s", phoneNumber);
-                addPerson(firstName, lastName, phoneNumber);
-                break;
-                
-            case 2:
-                printf("Enter phone number: ");
-                scanf("%s", phoneNumber);
-                Person* found = findPersonByPhone(phoneNumber);
-                if (found != NULL)
-                {
-                    printf("Person found:\n");
-                    printPerson(found);
-                }
-                else
-                {
-                    printf("No person found with this phone number.\n");
-                }
-                break;
-                
-            case 3:
-                printAllPersons();
-                break;
-                
-            case 4:
-                saveDatabase();
-                break;
-                
-            case 5:
-                saveDatabase();
-                cleanup();
-                printf("Program terminated.\n");
-                return 0;
-                
-            default:
-                printf("Invalid choice! Choose between 1-5.\n");
+        switch (choice) {
+            case 1: add_person(); break;
+            case 2: find_person(); break;
+            case 3: show_all(); break;
+            case 4: save_db(); break;
+            case 5: save_db(); cleanup(); return 0;
+            default: printf("Invalid choice!\n");
         }
     }
-    
-    return 0;
 }
