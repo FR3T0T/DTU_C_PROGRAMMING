@@ -1,21 +1,70 @@
+/*******************************************************************************
+* Person Database Management System
+*
+* Brugt Cp-Pilot, ChatGPT og ClaudeAI til fejlfinding af kode.
+*
+* Systemformaal:
+* - Haandterer en database af personer med kontaktinformation
+* - Tillader tilfoejelse og soegning af personer
+* - Gemmer data persistent i CSV-fil format
+* - Implementerer sikker input haandtering
+*
+* Funktionalitet:
+* - CRUD operationer paa persondata
+* - CSV fil baseret data persistence
+* - Beskyttelse mod buffer overflow
+* - Validering af telefonnumre
+*
+* Udviklingsplatform: Standard C
+*******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LEN 50
-#define MAX_PERSONS 100
-#define DB_FILE "database.csv"
+/****************************************************************************
+* System Konstanter og Konfiguration
+****************************************************************************/
+#define MAX_LEN 50        // Maksimal laengde for tekstinput
+#define MAX_PERSONS 100   // Maksimalt antal personer i databasen
+#define DB_FILE "database.csv"  // Databasens filnavn
 
+/****************************************************************************
+* Data Strukturer
+****************************************************************************/
+/************************************************/
+/* Person Struktur                              */
+/* Indeholder:                                  */
+/*   - fornavn  (max MAX_LEN karakterer)        */
+/*   - efternavn (max MAX_LEN karakterer)       */
+/*   - telefon   (8 cifre, valideret)           */
+/************************************************/
 typedef struct {
-    char fname[MAX_LEN];
-    char lname[MAX_LEN];
-    char phone[MAX_LEN];
+    char fname[MAX_LEN];    
+    char lname[MAX_LEN];    
+    char phone[MAX_LEN];    
 } Person;
 
-Person* db[MAX_PERSONS];
-int count = 0;
+/****************************************************************************
+* Globale Variable
+****************************************************************************/
+Person* db[MAX_PERSONS];    // Database array af person-pegepinde
+int count = 0;              // Aktuelle antal personer i databasen
 
-// Sikker input funktion
+/****************************************************************************
+* Input/Output Funktioner
+****************************************************************************/
+/************************************************/
+/* safe_input                                   */
+/* Formaal:                                     */
+/*   Sikker indlaesning af bruger input         */
+/* Input:                                       */
+/*   dest:    Destination buffer                */
+/*   max_len: Maksimal laengde paa input        */
+/* Beskyttelse:                                 */
+/*   - Buffer overflow prevention               */
+/*   - Null-terminering garanteret              */
+/************************************************/
 void safe_input(char* dest, int max_len) {
     char buffer[MAX_LEN * 2];
     fgets(buffer, sizeof(buffer), stdin);
@@ -24,47 +73,63 @@ void safe_input(char* dest, int max_len) {
     dest[max_len - 1] = 0;
 }
 
+/************************************************/
+/* add_person                                   */
+/* Formaal:                                     */
+/*   Tilfoej ny person til databasen            */
+/* Validering:                                  */
+/*   - Database kapacitet                       */
+/*   - Hukommelsestildeling                     */
+/*   - Telefonnummer format (8 cifre)           */
+/************************************************/
 void add_person() {
     if (count >= MAX_PERSONS) {
-        printf("Database full!\n");
+        printf("Database fuld!\n");
         return;
     }
     
     if (!(db[count] = malloc(sizeof(Person)))) {
-        printf("Memory error!\n");
+        printf("Hukommelsesfejl!\n");
         return;
     }
     
-    while(getchar() != '\n'); // Clear buffer
-    printf("First name: ");
+    while(getchar() != '\n');
+    printf("Fornavn: ");
     safe_input(db[count]->fname, MAX_LEN);
-    printf("Last name: ");
+    printf("Efternavn: ");
     safe_input(db[count]->lname, MAX_LEN);
-    printf("Phone (8 digits): ");
+    printf("Telefon (8 cifre): ");
     safe_input(db[count]->phone, MAX_LEN);
     
-    // Validate phone number
     if(strlen(db[count]->phone) != 8 || strspn(db[count]->phone, "0123456789") != 8) {
-        printf("Invalid phone number!\n");
+        printf("Ugyldigt telefonnummer!\n");
         free(db[count]);
         return;
     }
     count++;
 }
 
+/************************************************/
+/* Database Operationer                         */
+/* find_person: Soeger efter person via telefon */
+/* save_db: Gemmer database til CSV fil         */
+/* load_db: Indlaeser database fra CSV fil      */
+/* show_all: Viser alle personer i databasen    */
+/* cleanup: Frigoer allokeret hukommelse        */
+/************************************************/
 void find_person() {
     char phone[MAX_LEN];
-    printf("Enter phone: ");
+    printf("Indtast telefon: ");
     while(getchar() != '\n');
     safe_input(phone, MAX_LEN);
     
     for (int i = 0; i < count; i++)
         if (!strcmp(db[i]->phone, phone)) {
-            printf("Found: %s %s, %s\n", 
+            printf("Fundet: %s %s, %s\n", 
                    db[i]->fname, db[i]->lname, db[i]->phone);
             return;
         }
-    printf("Not found!\n");
+    printf("Ikke fundet!\n");
 }
 
 void save_db() {
@@ -73,7 +138,7 @@ void save_db() {
     for (int i = 0; i < count; i++)
         fprintf(f, "%s,%s,%s\n", db[i]->fname, db[i]->lname, db[i]->phone);
     fclose(f);
-    printf("Saved.\n");
+    printf("Gemt.\n");
 }
 
 void load_db() {
@@ -83,18 +148,18 @@ void load_db() {
     
     while (count < MAX_PERSONS && fgets(line, sizeof(line), f)) {
         if (!(db[count] = malloc(sizeof(Person)))) break;
-        if (sscanf(line, "%[^,],%[^,],%s", 
+        if (sscanf(line, "%[^,],%[^,],%s",
             db[count]->fname, db[count]->lname, db[count]->phone) == 3)
             count++;
         else
             free(db[count]);
     }
     fclose(f);
-    printf("Loaded %d records.\n", count);
+    printf("Indlaest %d poster.\n", count);
 }
 
 void show_all() {
-    printf("\nAll persons:\n");
+    printf("\nAlle personer:\n");
     for (int i = 0; i < count; i++)
         printf("%d. %s %s, %s\n", i+1, 
                db[i]->fname, db[i]->lname, db[i]->phone);
@@ -104,22 +169,25 @@ void cleanup() {
     while(count > 0) free(db[--count]);
 }
 
+/****************************************************************************
+* Hovedprogram3
+****************************************************************************/
 int main() {
     int choice;
     load_db();
     
     while (1) {
         printf("\nMenu:\n"
-               "1. Add person\n"
-               "2. Search by phone\n"
-               "3. Show all\n"
-               "4. Save\n"
-               "5. Exit\n"
-               "Choice: ");
+               "1. Tilfoej person\n"
+               "2. Soeg via telefon\n"
+               "3. Vis alle\n"
+               "4. Gem\n"
+               "5. Afslut\n"
+               "\nValg: ");
                
         if (scanf("%d", &choice) != 1) {
             while(getchar() != '\n');
-            printf("Invalid input!\n");
+            printf("Ugyldigt input!\n");
             continue;
         }
         
@@ -129,7 +197,7 @@ int main() {
             case 3: show_all(); break;
             case 4: save_db(); break;
             case 5: save_db(); cleanup(); return 0;
-            default: printf("Invalid choice!\n");
+            default: printf("Ugyldigt valg!\n");
         }
     }
 }
