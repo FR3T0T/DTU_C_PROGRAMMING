@@ -1,7 +1,7 @@
 /*******************************************************************************
 * Person Database Management System
 *
-* Brugt Cp-Pilot, ChatGPT og ClaudeAI til fejlfinding af kode.
+* Brugen af Cp-Pilot, ChatGPT og ClaudeAI er blevet brugt til fejlfinding af kode.
 *
 * Systemformaal:
 * - Haandterer en database af personer med kontaktinformation
@@ -39,7 +39,8 @@
 /*   - efternavn (max MAX_LEN karakterer)       */
 /*   - telefon   (8 cifre, valideret)           */
 /************************************************/
-typedef struct {
+typedef struct
+{
     char fname[MAX_LEN];    
     char lname[MAX_LEN];    
     char phone[MAX_LEN];    
@@ -65,7 +66,8 @@ int count = 0;              // Aktuelle antal personer i databasen
 /*   - Buffer overflow prevention               */
 /*   - Null-terminering garanteret              */
 /************************************************/
-void safe_input(char* dest, int max_len) {
+void safe_input(char* dest, int max_len)
+{
     char buffer[MAX_LEN * 2];
     fgets(buffer, sizeof(buffer), stdin);
     buffer[strcspn(buffer, "\n")] = 0;
@@ -82,13 +84,16 @@ void safe_input(char* dest, int max_len) {
 /*   - Hukommelsestildeling                     */
 /*   - Telefonnummer format (8 cifre)           */
 /************************************************/
-void add_person() {
-    if (count >= MAX_PERSONS) {
+void add_person()
+{
+    if (count >= MAX_PERSONS)
+    {
         printf("Database fuld!\n");
         return;
     }
     
-    if (!(db[count] = malloc(sizeof(Person)))) {
+    if (!(db[count] = malloc(sizeof(Person))))
+    {
         printf("Hukommelsesfejl!\n");
         return;
     }
@@ -101,7 +106,8 @@ void add_person() {
     printf("Telefon (8 cifre): ");
     safe_input(db[count]->phone, MAX_LEN);
     
-    if(strlen(db[count]->phone) != 8 || strspn(db[count]->phone, "0123456789") != 8) {
+    if(strlen(db[count]->phone) != 8 || strspn(db[count]->phone, "0123456789") != 8)
+    {
         printf("Ugyldigt telefonnummer!\n");
         free(db[count]);
         return;
@@ -117,14 +123,16 @@ void add_person() {
 /* show_all: Viser alle personer i databasen    */
 /* cleanup: Frigoer allokeret hukommelse        */
 /************************************************/
-void find_person() {
+void find_person()
+{
     char phone[MAX_LEN];
     printf("Indtast telefon: ");
     while(getchar() != '\n');
     safe_input(phone, MAX_LEN);
     
     for (int i = 0; i < count; i++)
-        if (!strcmp(db[i]->phone, phone)) {
+        if (!strcmp(db[i]->phone, phone))
+        {
             printf("Fundet: %s %s, %s\n", 
                    db[i]->fname, db[i]->lname, db[i]->phone);
             return;
@@ -132,7 +140,8 @@ void find_person() {
     printf("Ikke fundet!\n");
 }
 
-void save_db() {
+void save_db()
+{
     FILE* f = fopen(DB_FILE, "w");
     if (!f) return;
     for (int i = 0; i < count; i++)
@@ -141,12 +150,14 @@ void save_db() {
     printf("Gemt.\n");
 }
 
-void load_db() {
+void load_db()
+{
     FILE* f = fopen(DB_FILE, "r");
     char line[MAX_LEN * 3];
     if (!f) return;
     
-    while (count < MAX_PERSONS && fgets(line, sizeof(line), f)) {
+    while (count < MAX_PERSONS && fgets(line, sizeof(line), f))
+    {
         if (!(db[count] = malloc(sizeof(Person)))) break;
         if (sscanf(line, "%[^,],%[^,],%s",
             db[count]->fname, db[count]->lname, db[count]->phone) == 3)
@@ -158,25 +169,29 @@ void load_db() {
     printf("Indlaest %d poster.\n", count);
 }
 
-void show_all() {
+void show_all()
+{
     printf("\nAlle personer:\n");
     for (int i = 0; i < count; i++)
         printf("%d. %s %s, %s\n", i+1, 
                db[i]->fname, db[i]->lname, db[i]->phone);
 }
 
-void cleanup() {
+void cleanup()
+{
     while(count > 0) free(db[--count]);
 }
 
 /****************************************************************************
-* Hovedprogram3
+* Hovedprogram
 ****************************************************************************/
-int main() {
+int main()
+{
     int choice;
     load_db();
     
-    while (1) {
+    while (1)
+    {
         printf("\nMenu:\n"
                "1. Tilfoej person\n"
                "2. Soeg via telefon\n"
@@ -185,13 +200,15 @@ int main() {
                "5. Afslut\n"
                "\nValg: ");
                
-        if (scanf("%d", &choice) != 1) {
+        if (scanf("%d", &choice) != 1)
+        {
             while(getchar() != '\n');
             printf("Ugyldigt input!\n");
             continue;
         }
         
-        switch (choice) {
+        switch (choice)
+        {
             case 1: add_person(); break;
             case 2: find_person(); break;
             case 3: show_all(); break;
