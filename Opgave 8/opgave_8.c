@@ -1,7 +1,7 @@
 /*******************************************************************************
 * Person Database Management System
 *
-* Brugen af Cp-Pilot, ChatGPT og ClaudeAI er blevet brugt til fejlfinding af kode.
+* Brugen af Co-Pilot, ChatGPT og ClaudeAI er blevet brugt til fejlfinding af kode.
 *
 * Systemformaal:
 * - Haandterer en database af personer med kontaktinformation
