@@ -1,10 +1,13 @@
-/*
-Navn: Frederik Tots
-Dato: 11/12-2024
-Beskrivelse: Program til beregning af karakterer baseret på fire opgaver i biologi.
-Programmet tager fire pointtal som input (0-100) og beregner gennemsnittet
-samt den tilsvarende karakter efter 7-trinsskalaen.
-*/
+/*********************************************************************
+* Opgave 2 (Del. 1-3)
+*
+* Navn: Frederik Tots
+* Dato: 11/12-2024
+
+* Beskrivelse: Program til beregning af karakterer baseret på fire opgaver i biologi.
+* Programmet tager fire pointtal som input (0-100) og beregner gennemsnittet
+* samt den tilsvarende karakter efter 7-trinsskalaen.
+*********************************************************************/
 
 #include <stdio.h>
 
