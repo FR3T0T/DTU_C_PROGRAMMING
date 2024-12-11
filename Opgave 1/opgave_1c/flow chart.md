@@ -1,26 +1,21 @@
 ```mermaid
 flowchart TD
     Start((Start))
-    Init[Initialiser number og buffer]
-    Input[/Vis: Indtast et heltal/]
-    Check1{Er input modtaget?}
-    Check2{Er input et heltal?}
-    Check3{Er tallet deleligt med 5?}
-    Out1[/Vis: Tallet er deleligt med 5/]
-    Out2[/Vis: Tallet er ikke deleligt med 5/]
-    Err[/Vis: Ikke et gyldigt heltal/]
+    Input[/Prompt: Indtast et heltal/]
+    Check1{Kan tallet\nlæses som heltal?}
+    Check2{Er tallet\ndeleligt med 5?}
+    Out1[/Tallet er deleligt med 5/]
+    Out2[/Tallet er ikke deleligt med 5/]
+    Err[/Ugyldigt input -\nIkke et heltal/]
     End((Stop))
 
-    Start --> Init
-    Init --> Input
+    Start --> Input
     Input --> Check1
     Check1 -->|Ja| Check2
-    Check1 -->|Nej| End
-    Check2 -->|Ja| Check3
-    Check2 -->|Nej| Err
-    Check3 -->|Ja| Out1
-    Check3 -->|Nej| Out2
+    Check1 -->|Nej| Err
+    Check2 -->|Ja| Out1
+    Check2 -->|Nej| Out2
+    Err --> End
     Out1 --> End
     Out2 --> End
-    Err --> End
 ```
