@@ -1,48 +1,92 @@
+/*
+Navn: Frederik Tots
+Dato: 11/12-2024
+Beskrivelse: Program til beregning af karakterer baseret på fire opgaver i biologi.
+Programmet tager fire pointtal som input (0-100) og beregner gennemsnittet
+samt den tilsvarende karakter efter 7-trinsskalaen.
+*/
+
 #include <stdio.h>
 
-int get_valid_input(const char* prompt) {
+// Funktion til at håndtere og validere brugerinput
+int get_valid_input(const char* prompt)
+{
     int input;
-    while (1) {
+    while (1)
+    {
         printf("%s", prompt);
-        if (scanf("%d", &input) != 1) {
+        // Tjek om input er et tal
+        if (scanf("%d", &input) != 1)
+        {
             while (getchar() != '\n'); // Ryd input buffer
-            printf("Fejl: Indtast venligst et heltal.\n");
-        } else if (input < 0 || input > 100) {
+            printf("Fejl: Indtast venligst et tal mellem 0 og 100.\n");
+        } 
+        // Tjek om tallet er inden for det gyldige interval
+        else if (input < 0 || input > 100)
+        {
             printf("Fejl: Tallet skal være mellem 0 og 100.\n");
-        } else {
+            while (getchar() != '\n'); // Ryd input buffer
+        } 
+        else
+        {
+            while (getchar() != '\n'); // Ryd eventuelle resterende tegn i bufferen
             return input;
         }
     }
 }
 
-int main(void) {
-    int a, b, c, d, sum, grade;
+int main(void)
+{
+    // Variabler til point og beregninger
+    int point1, point2, point3, point4, sum, gennemsnit;
 
-    printf("Indtast 4 heltal mellem 0 og 100.\n");
+    // Velkomstbesked og instruktioner
+    printf("Velkommen til karakterberegning\n");
+    printf("--------------------------------\n");
+    printf("Indtast venligst point (0-100) for de fire opgaver.\n\n");
 
-    a = get_valid_input("Indtast første tal: ");
-    b = get_valid_input("Indtast andet tal: ");
-    c = get_valid_input("Indtast tredje tal: ");
-    d = get_valid_input("Indtast fjerde tal: ");
+    // Indhent point for alle fire opgaver
+    point1 = get_valid_input("Indtast point for første opgave: ");
+    point2 = get_valid_input("Indtast point for anden opgave: ");
+    point3 = get_valid_input("Indtast point for tredje opgave: ");
+    point4 = get_valid_input("Indtast point for fjerde opgave: ");
 
-    sum = a + b + c + d;
-    grade = sum / 4; // Gennemsnit af de fire tal
+    // Beregn sum og gennemsnit
+    sum = point1 + point2 + point3 + point4;
+    gennemsnit = sum / 4;
 
+    // Vis resultaterne
+    printf("\nResultater:\n");
+    printf("--------------------------------\n");
     printf("Samlet antal point: %d\n", sum);
-    printf("Gennemsnit: %d\n", grade);
+    printf("Gennemsnit: %d\n", gennemsnit);
+    printf("Karakter: ");
 
-    if (grade >= 90)
-        printf("Karakter: 12\n");
-    else if (grade >= 80)
-        printf("Karakter: 10\n");
-    else if (grade >= 70)
-        printf("Karakter: 7\n");
-    else if (grade >= 60)
-        printf("Karakter: 4\n");
-    else if (grade >= 40)
-        printf("Karakter: 02\n");
+    // Bestem og vis karakteren baseret på gennemsnittet
+    if (gennemsnit >= 90)
+    {
+        printf("12\n");
+    }
+    else if (gennemsnit >= 80)
+    {
+        printf("10\n");
+    }
+    else if (gennemsnit >= 70)
+    {
+        printf("7\n");
+    }
+    else if (gennemsnit >= 60)
+    {
+        printf("4\n");
+    }
+    else if (gennemsnit >= 40)
+    {
+        printf("02\n");
+    }
     else
-        printf("Karakter: 00\n");
+    {
+        printf("00\n");
+    }
 
     return 0;       
 }
