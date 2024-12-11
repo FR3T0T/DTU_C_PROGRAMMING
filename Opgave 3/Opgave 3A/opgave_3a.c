@@ -1,4 +1,15 @@
-// Opgave 3a
+/*********************************************************************
+* Opgave 3 (Del A)
+* 
+* Navn: Frederik Tots
+* Dato: 10/12-2024
+*
+* Beskrivelse: Program til at finde antallet af bits i en int-datatype.
+* Programmet bruger en algoritme der fordobler et tal gentagne gange,
+* indtil overflow sker, og tæller dermed antallet af bits der kan
+* repræsenteres i en int på det aktuelle system.
+*********************************************************************/
+
 #include <stdio.h>
 
 int find_int_bits()

@@ -1,3 +1,16 @@
+/*********************************************************************
+* Opgave 3 (Del B)
+* 
+* Navn: Frederik Tots
+* Dato: 10/12-2024
+*
+* Beskrivelse: Program til beregning af kvadratrødder ved hjælp af
+* Newton-Raphsons iterative metode. Programmet tager et positivt tal som
+* input og beregner dets kvadratrod med en specificeret tolerance.
+* Resultatet sammenlignes med math.h's sqrt() funktion for at verificere
+* nøjagtigheden af beregningen.
+*********************************************************************/
+
 #include <stdio.h>
 #include <math.h>
 
