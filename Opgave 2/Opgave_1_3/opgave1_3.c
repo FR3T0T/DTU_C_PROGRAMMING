@@ -10,6 +10,9 @@
 *********************************************************************/
 
 #include <stdio.h>
+// Dansk sprog i terminalen
+#include <wchar.h>    // For wide character support
+#include <windows.h>  // For Windows console functions
 
 // Funktion til at håndtere og validere brugerinput
 int get_valid_input(const char* prompt)
@@ -40,6 +43,10 @@ int get_valid_input(const char* prompt)
 
 int main(void)
 {
+    // Set console to use UTF-8
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+
     // Variabler til point og beregninger
     int point1, point2, point3, point4, sum, gennemsnit;
 
