@@ -1,26 +1,42 @@
-/** 
-* Co-pilot, Chat-GPT og Claude AI er blevet brugt til hjælp og fejl finding.
+/*********************************************************************
+* Opgave 10, Hægtet Liste Database
 *
-* Database system til personer med linked list implementering
-* Understøtter:
-* - CRUD operationer (Create, Read, Update, Delete)
-* - Fil persistence
-* - Automatisk sortering efter navn
-* - Dansk tegnsæt understøttelse
-*/
+* Navn: Frederik Tots
+* Dato: 11/12-2024
+*
+* Beskrivelse: Program til at håndtere en sorteret database over personer
+* ved brug af en hægtet liste (linked list). Programmet læser data fra en 
+* CSV-fil ind i en dynamisk allokeret liste af Records, hvor hver record 
+* indeholder navn, adresse og telefonnummer.
+* 
+* Programmet implementerer:
+* - Dynamisk hukommelsesallokering med malloc() for fleksibel listestørrelse
+* - Automatisk sortering ved indsættelse baseret på navn
+* - Effektiv sletning af elementer uden at skulle omorganisere data
+* - Robust håndtering af danske tegn via UTF-8 encoding
+* - Menu-baseret brugerinterface til databaseoperationer
+*
+* Data gemmes i en Record struct med en pointer til næste element,
+* hvilket muliggør en dynamisk og fleksibel datastruktur. Implementationen
+* inkluderer sikkerhedstjek for NULL-pointers og memory leaks.
+* 
+* Programmet er udviklet som en videreudvikling fra tidligere opgaver,
+* hvor et statisk array er erstattet med en hægtet liste for bedre
+* hukommelsesudnyttelse og fleksibilitet.
+*
+* Filformat: Data gemmes i CSV-format med komma-separerede værdier:
+* <navn>, <adresse>, <telefonnummer>
+*********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
 
-/**
-* Record node der indeholder persondata:
-* - Fast allokeret navn[50]
-* - Fast allokeret adresse[50]
-* - Unsigned int telefonnummer 
-* - Pointer til næste element
-*/
+// Dansk sprog i terminalen
+#include <wchar.h>    // For wide character support
+#include <windows.h>  // For Windows console functions
+
+// Record node der indeholder persondata:
 struct Record
 {
    char name[50];
@@ -32,9 +48,7 @@ struct Record
 typedef struct Record Record;
 typedef Record *recordPtr;
 
-/** 
-* Hjælpefunktioner 
-*/
+// Hjælpefunktioner 
 void stripNewline(char *str)
 {
    str[strcspn(str, "\n")] = 0;  // Fjerner newline fra string
@@ -49,15 +63,13 @@ recordPtr loadFromFile(const char *filename);
 void deleteRecord(recordPtr *headPtr, const char *name);
 void freeList(recordPtr head);
 
-/**
-* Hovedprogram med menu-system og brugerinteraktion.
-*/
+// Hovedprogram med menu-system og brugerinteraktion.
 int main()
 {
-   #ifdef _WIN32
-   system("chcp 65001"); // Windows: Sæt console til UTF-8
-   #endif
-   setlocale(LC_ALL, "da_DK.UTF-8");
+   // Set console to use UTF-8
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+
 
    recordPtr head = NULL;
    const char *filename = "mydatabase.txt";
@@ -132,9 +144,7 @@ int main()
    return 0;
 }
 
-/**
-* Opretter ny node med kopi af input data
-*/
+// Opretter ny node med kopi af input data
 recordPtr createNode(const char *name, const char *address, unsigned int phone)
 {
    recordPtr newNode = malloc(sizeof(Record));
@@ -152,17 +162,13 @@ recordPtr createNode(const char *name, const char *address, unsigned int phone)
    return newNode;
 }
 
-/**
-* Frigør node
-*/
+// Frigør node
 void freeNode(recordPtr node)
 {
    free(node);
 }
 
-/**
-* Indsætter node i sorteret rækkefølge efter navn
-*/
+// Indsætter node i sorteret rækkefølge efter navn
 void insertSorted(recordPtr *headPtr, recordPtr newNode)
 {
    if (*headPtr == NULL)
@@ -192,9 +198,7 @@ void insertSorted(recordPtr *headPtr, recordPtr newNode)
    }
 }
 
-/**
-* Viser alle poster i databasen
-*/
+// Viser alle poster i databasen
 void printList(recordPtr currentPtr)
 {
    if (currentPtr == NULL)
@@ -214,9 +218,7 @@ void printList(recordPtr currentPtr)
    }
 }
 
-/**
-* Gemmer database til fil i TXT-format
-*/
+// Gemmer database til fil i TXT-format
 void saveToFile(recordPtr head, const char *filename)
 {
    FILE *file = fopen(filename, "w");
@@ -237,9 +239,7 @@ void saveToFile(recordPtr head, const char *filename)
    fclose(file);
 }
 
-/**
-* Indlæser database fra CSV-fil
-*/
+// Indlæser database fra CSV-fil
 recordPtr loadFromFile(const char *filename)
 {
    FILE *file = fopen(filename, "r");
@@ -278,9 +278,7 @@ recordPtr loadFromFile(const char *filename)
    return head;
 }
 
-/**
-* Sletter post fra databasen baseret på navn
-*/
+// Sletter post fra databasen baseret på navn
 void deleteRecord(recordPtr *headPtr, const char *name)
 {
    recordPtr current = *headPtr;
@@ -311,9 +309,7 @@ void deleteRecord(recordPtr *headPtr, const char *name)
    printf("Post slettet.\n");
 }
 
-/**
-* Frigør al allokeret hukommelse i listen
-*/
+// Frigør al allokeret hukommelse i listen
 void freeList(recordPtr head)
 {
    while (head != NULL)
