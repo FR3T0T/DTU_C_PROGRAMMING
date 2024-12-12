@@ -19,15 +19,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <stdlib.h>
+
+// Dansk sprog i terminalen
+#include <wchar.h>    // For wide character support
+#include <windows.h>  // For Windows console functions
 
 #define MAX_SIZE 100  // Definerer maksimal størrelse for arrayet
-
-// Funktion til at rydde input buffer
-void clear_input_buffer(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
 
 // Funktion til at indlæse tal fra brugeren
 void indlaes_tal(int *array, int n)
@@ -35,12 +33,7 @@ void indlaes_tal(int *array, int n)
     for (int i = 0; i < n; i++)
     {
         printf("Indtast tal %d: ", i + 1);
-        while (scanf("%d", &array[i]) != 1)
-        {
-            printf("Fejl: Indtast venligst et gyldigt tal\n");
-            printf("Indtast tal %d igen: ", i + 1);
-            clear_input_buffer();
-        }
+        scanf("%d", &array[i]);  // Indlæser tal og gemmer i arrayet
     }
 }
 
@@ -81,7 +74,7 @@ int find_hoejeste(int *array, int n)
     int hoejeste = array[0];  // Antager første element er højest
     for (int i = 1; i < n; i++)
     {
-        if (array[i] > hoejeste) 
+        if (array[i] > hoejeste)
         {
             hoejeste = array[i];  // Opdaterer højeste hvis et større tal findes
         }
@@ -93,54 +86,38 @@ int find_hoejeste(int *array, int n)
 void find_dubletter(int *array, int n)
 {
     bool fundet_dublet = false;
-    
-    // Array til at tælle forekomster af hvert tal
-    int forekomster[MAX_SIZE] = {0};
-    int unikke_tal[MAX_SIZE];
-    int unikke_antal = 0;
-    
-    // Tæl forekomster af hvert tal
-    for (int i = 0; i < n; i++) {
-        bool fundet = false;
-        for (int j = 0; j < unikke_antal; j++)
-        {
-            if (array[i] == unikke_tal[j])
-            {
-                forekomster[j]++;
-                fundet = true;
-                break;
-            }
-        }
-        if (!fundet)
-        {
-            unikke_tal[unikke_antal] = array[i];
-            forekomster[unikke_antal] = 1;
-            unikke_antal++;
-        }
-    }
-    
-    // Udskriv dubletter og deres antal forekomster
-    for (int i = 0; i < unikke_antal; i++)
+    for (int i = 0; i < n - 1; i++)
     {
-        if (forekomster[i] > 1)
+        for (int j = i + 1; j < n; j++)
         {
-            if (!fundet_dublet)
+            if (array[i] == array[j])
             {
-                printf("Dubletter fundet:\n");
-                fundet_dublet = true;
+                if (!fundet_dublet)
+                {
+                    printf("Dubletter fundet:\n");
+                    fundet_dublet = true;
+                }
+                printf("%d ", array[i]);  // Udskriver dublet
+                break;  // Går videre til næste tal i ydre loop
             }
-            printf("Tallet %d forekommer %d gange\n", unikke_tal[i], forekomster[i]);
         }
     }
-    
     if (!fundet_dublet)
     {
         printf("Ingen dubletter fundet.\n");
+    }
+    else
+    {
+        printf("\n");
     }
 }
 
 int main()
 {
+    // Set console to use UTF-8
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+    
     int n;
     int array[MAX_SIZE];
 
@@ -148,12 +125,7 @@ int main()
     do
     {
         printf("Indtast antal tal (max 100): ");
-        while (scanf("%d", &n) != 1) {
-            printf("Fejl: Indtast venligst et gyldigt tal\n");
-            printf("Indtast antal tal igen (max 100): ");
-            clear_input_buffer();
-        }
-        
+        scanf("%d", &n);
         if (n > MAX_SIZE)
         {
             printf("Fejl: Maksimalt 100 tal tilladt\n");
@@ -184,7 +156,7 @@ int main()
     printf("Gennemsnit: %.2f\n", gennemsnit);
     printf("Laveste tal: %d\n", laveste);
     printf("Højeste tal: %d\n", hoejeste);
-    
+
     find_dubletter(array, n);
 
     return 0;
