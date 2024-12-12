@@ -1,6 +1,22 @@
+/*********************************************************************
+* Opgave 7, Sundhedsprofil opgave
+*
+* Navn: Frederik Tots
+* Dato: 11/12-2024
+*
+* Beskrivelse: Program til at oprette og beregne en sundhedsprofil for en person.
+* Programmet indsamler personlige data (navn, fødselsdato, højde, vægt) og
+* beregner sundhedsrelaterede værdier som BMI, maksimal puls og træningspuls-
+* intervaller. Alle data gemmes i en struct og udskrives formateret.
+*********************************************************************/
+
 // Inkluderer nødvendige header-filer
 #include <stdio.h>  // Standard input/output funktioner
 #include <time.h>   // Tidsfunktioner til aldersberegning
+
+// Dansk sprog i terminalen
+#include <wchar.h>    // For wide character support
+#include <windows.h>  // For Windows console functions
 
 // Definition af struct til sundhedsdata
 // Denne struct indeholder alle beregnede sundhedsværdier
@@ -74,6 +90,10 @@ float beregnBMI(float hoejde, float vaegt)
 // Hovedfunktion
 int main()
 {
+    // Set console to use UTF-8
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+
     // Opretter en instans af sundhedsprofil
     struct Sundhedsprofil profil;
     
@@ -87,7 +107,7 @@ int main()
     printf("Indtast fødselsdag (dd mm åååå): ");
     scanf_s("%d %d %d", &profil.fodselsdag[0], &profil.fodselsdag[1], &profil.fodselsdag[2]);
     
-    printf("Indtast højde i meter (fx 1,70): ");
+    printf("Indtast højde i meter (fx 1.70): ");
     scanf_s("%f", &profil.hoejde);
     
     printf("Indtast vægt i kg: ");
