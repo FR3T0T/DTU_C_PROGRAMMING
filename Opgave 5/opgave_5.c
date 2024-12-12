@@ -18,21 +18,9 @@
 * sikker input-håndtering samt const-kvalificerede parametre for
 * at beskytte input-data.
 *********************************************************************/
-
 #include <stdio.h>   // Inkluderer standard input/output bibliotek
 #include <string.h>  // Inkluderer string-håndteringsbibliotek
 
-// Dansk sprog i terminalen
-#include <wchar.h>    // For wide character support
-#include <windows.h>  // For Windows console functions
-
-/**
- * Tæller antallet af karakterer fra 'text' som findes i 'set'.
- * 
- * @param text Inputteksten der skal analyseres.
- * @param set Mængden af karakterer der skal tælles.
- * @return Antallet af karakterer fra 'set' fundet i 'text'.
- */
 int countCharactersInSet(const char* text, const char* set)
 {
     int count = 0;  // Initialiserer tælleren
@@ -61,13 +49,9 @@ int countCharactersInSet(const char* text, const char* set)
 
 int main()
 {
-    // Set console to use UTF-8
-    SetConsoleCP(CP_UTF8);
-    SetConsoleOutputCP(CP_UTF8);
-
     const int maxlength = 100;                    // Definerer maksimal længde for inputtekst
     char mytext[maxlength];                       // Array til at indeholde inputteksten
-    const char* vowels = "aeiouyæøåAEIOUYÆØÅ";         // Streng med alle vokaler (små og store), inkl. 'y'
+    const char* vowels = "aeiouyAEIOUY";         // Streng med alle vokaler (små og store), inkl. 'y'
 
     // Test med eksemplet fra opgaven
     int example = countCharactersInSet("Denmark is a democratic country", vowels);
