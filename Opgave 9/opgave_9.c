@@ -1,10 +1,37 @@
-// Co-Pilot, Chat-GPT og Claude er blevet brugt til fejlfiding.
+/*********************************************************************
+* Opgave 9, Sorteret Database
+*
+* Navn: Frederik Tots
+* Dato: 11/12-2024
+*
+* Beskrivelse: Program til at håndtere en sorteret database over personer.
+* Programmet læser data fra en CSV-fil ind i et array af Records, hvor
+* hver record indeholder navn, adresse, alder og telefonnummer. 
+* 
+* Programmet implementerer:
+* - Bubble sort algoritme til sortering af databasen efter telefonnummer
+* - Binær søgning for effektiv søgning efter telefonnumre
+* - Robust fejlhåndtering ved fil-operationer og brugerinput
+* - Dansk tegnsæt support via UTF-8
+*
+* Data gemmes i en Record struct og programmet bruger et array af disse
+* structs som den primære datastruktur. Implementationen inkluderer
+* sikkerhedstjek for at undgå buffer overflows og invalide data.
+* 
+* Programmet er udviklet som en udvidelse af opgave 8, hvor lineær
+* søgning er erstattet med binær søgning i en sorteret liste.
+*********************************************************************/
+
 // Header filer der inkluderes for forskellige funktionaliteter
 #include <stdio.h>    // Standard input/output operationer
 #include <stdlib.h>   // Standard biblioteksfunktioner (f.eks. atoi)
 #include <string.h>   // String manipulation funktioner
 #include <stdbool.h>  // Boolean type og værdier
 #include <stddef.h>   // Standard definitioner
+
+// Dansk sprog i terminalen
+#include <wchar.h>    // For wide character support
+#include <windows.h>  // For Windows console functions
 
 // Konstanter der definerer størrelsesbegrænsninger
 #define LISTSIZE 100    // Maksimalt antal records i databasen
@@ -24,7 +51,8 @@ struct Record list[LISTSIZE];
 int recordCount = 0;
 
 // Indlæser data fra CSV fil ind i den globale list array
-void readDatabase(const char* filename)
+// Returnerer true hvis succesfuld, false hvis der er fejl
+bool readDatabase(const char* filename)
 {
     FILE* file = fopen(filename, "r");
     char line[MAX_LINE];
@@ -34,11 +62,19 @@ void readDatabase(const char* filename)
     if (!file)
     {
         printf("Fejl ved aabning af fil %s\n", filename);
-        return;
+        return false;
     }
     
     // Spring header linjen over i CSV filen
-    fgets(line, MAX_LINE, file);
+    if (fgets(line, MAX_LINE, file) == NULL)
+    {
+        printf("Fejl: Filen er tom eller kan ikke læses\n");
+        fclose(file);
+        return false;
+    }
+    
+    // Reset recordCount for sikkerhed
+    recordCount = 0;
     
     // Læs hver linje og split op i felter ved komma
     while (fgets(line, MAX_LINE, file) && recordCount < LISTSIZE)
@@ -48,25 +84,65 @@ void readDatabase(const char* filename)
         
         // Split linjen op ved kommaer og kopier data ind i den aktuelle record
         token = strtok(line, ",");
-        if (token) strncpy(list[recordCount].name, token, 49);
+        if (!token)
+        {
+            printf("Advarsel: Ugyldig linje fundet i filen (mangler navn)\n");
+            continue;
+        }
+        strncpy(list[recordCount].name, token, 49);
+        list[recordCount].name[49] = '\0';  // Sikr null-terminering
         
         token = strtok(NULL, ",");
-        if (token) strncpy(list[recordCount].address, token, 49);
+        if (!token)
+        {
+            printf("Advarsel: Ugyldig linje fundet i filen (mangler adresse)\n");
+            continue;
+        }
+        strncpy(list[recordCount].address, token, 49);
+        list[recordCount].address[49] = '\0';  // Sikr null-terminering
         
         token = strtok(NULL, ",");
-        if (token) list[recordCount].age = atoi(token);
+        if (!token)
+        {
+            printf("Advarsel: Ugyldig linje fundet i filen (mangler alder)\n");
+            continue;
+        }
+        list[recordCount].age = atoi(token);
         
         token = strtok(NULL, ",");
-        if (token) list[recordCount].phone = (unsigned int)atol(token);
+        if (!token)
+        {
+            printf("Advarsel: Ugyldig linje fundet i filen (mangler telefonnummer)\n");
+            continue;
+        }
+        list[recordCount].phone = (unsigned int)atol(token);
         
         recordCount++;
     }
+    
     fclose(file);
+    
+    // Check om vi har læst nogle records
+    if (recordCount == 0)
+    {
+        printf("Fejl: Ingen gyldige records blev læst fra filen\n");
+        return false;
+    }
+    
+    if (recordCount == LISTSIZE)
+    {
+        printf("Advarsel: Maksimalt antal records (%d) nået. Nogle records kan være udeladt.\n", LISTSIZE);
+    }
+    
+    printf("Succes: %d records blev indlæst fra filen\n", recordCount);
+    return true;
 }
 
 // Implementering af bubble sort algoritmen til sortering af records efter telefonnummer
 void bubbleSort()
 {
+    if (recordCount < 2) return;  // Ingen grund til at sortere 0 eller 1 element
+    
     bool swapped;
     int i;
     struct Record temp;  // Midlertidig record til brug ved ombytning
@@ -101,6 +177,8 @@ void bubbleSort()
 // Binary search implementation til at finde record ud fra telefonnummer
 int binarySearch(unsigned int searchPhone)
 {
+    if (recordCount == 0) return -1;  // Tom liste
+    
     int low = 0;
     int high = recordCount - 1;
     int mid;
@@ -132,6 +210,8 @@ int binarySearch(unsigned int searchPhone)
 // Udskriver alle felter for en given record
 void printRecord(const struct Record* record)
 {
+    if (!record) return;  // Sikkerhedscheck
+    
     printf("Navn: %s\n", record->name);
     printf("Adresse: %s\n", record->address);
     printf("Alder: %d\n", record->age);
@@ -141,19 +221,37 @@ void printRecord(const struct Record* record)
 // Hovedprogram - indlæser database, sorterer og håndterer søgninger
 int main()
 {
+    // Set console to use UTF-8
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+
     unsigned int searchPhone;
     int foundIndex;
     
-    // Indlæs data og sortér
-    readDatabase("database.csv");
-    printf("Database indlaest. Sorterer efter telefonnummer...\n");
+    // Indlæs database
+    printf("Indlæser database...\n");
+    if (!readDatabase("database.csv"))
+    {
+        printf("Kritisk fejl: Kunne ikke indlæse databasen. Programmet afsluttes.\n");
+        return 1;
+    }
+    
+    // Sortér databasen
+    printf("Sorterer database efter telefonnummer...\n");
     bubbleSort();
+    printf("Sortering færdig.\n");
     
     // Hovedloop der håndterer brugerens søgninger
     while (1)
     {
-        printf("\nIndtast telefonnummer at soege efter (0 for at afslutte): ");
-        scanf("%u", &searchPhone);
+        printf("\nIndtast telefonnummer for at søge! (0 for at afslutte): ");
+        if (scanf("%u", &searchPhone) != 1)
+        {
+            printf("Fejl: Ugyldigt input. Prøv igen.\n");
+            // Ryd input buffer
+            while (getchar() != '\n');
+            continue;
+        }
         
         if (searchPhone == 0) break;  // Afslut hvis bruger indtaster 0
         
@@ -166,8 +264,10 @@ int main()
         }
         else
         {
-            printf("Telefonnummer ikke fundet.\n");
+            printf("Telefonnummer ikke fundet i databasen.\n");
         }
     }
+    
+    printf("Program afsluttet.\n");
     return 0;
 }

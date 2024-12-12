@@ -1,3 +1,16 @@
+/*********************************************************************
+* Opgave 8, Database opgave
+*
+* Navn: Frederik Tots
+* Dato: 11/12-2024
+*
+* Beskrivelse: Program til at håndtere en database over personer.
+* Programmet kan læse og gemme data i en CSV-fil, tilføje nye personer,
+* søge efter personer via telefonnummer, vise alle personer, og slette
+* personer fra databasen. Data for hver person (fornavn, efternavn,
+* telefonnummer) gemmes i en struct, og programmet bruger et array af
+* pointere til disse structs som den primære datastruktur.
+*********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -108,7 +121,8 @@ void find_person()
 void save_db()
 {
     FILE* f = fopen(DB_FILE, "w");
-    if (!f) {
+    if (!f)
+    {
         printf("Kunne ikke åbne fil til gemning!\n");
         return;
     }
@@ -121,7 +135,8 @@ void save_db()
 void load_db()
 {
     FILE* f = fopen(DB_FILE, "r");
-    if (!f) {
+    if (!f)
+    {
         printf("Kunne ikke åbne databasefilen. Starter med tom database.\n");
         return;
     }
@@ -129,14 +144,16 @@ void load_db()
     char line[MAX_LEN * 3];
     while (count < MAX_PERSONS && fgets(line, sizeof(line), f))
     {
-        if (!(db[count] = malloc(sizeof(Person)))) {
+        if (!(db[count] = malloc(sizeof(Person))))
+        {
             printf("Hukommelsesfejl under indlæsning!\n");
             break;
         }
         if (sscanf(line, "%[^,],%[^,],%s",
             db[count]->fname, db[count]->lname, db[count]->phone) == 3)
             count++;
-        else {
+        else
+        {
             printf("Fejl i filformat på linje %d\n", count + 1);
             free(db[count]);
         }
@@ -147,7 +164,8 @@ void load_db()
 
 void show_all()
 {
-    if (count == 0) {
+    if (count == 0)
+    {
         printf("\nDatabasen er tom.\n");
         return;
     }
