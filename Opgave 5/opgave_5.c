@@ -1,5 +1,30 @@
+/*********************************************************************
+* Opgave 5: Pointers
+* 
+* Navn: Frederik Tots
+* Dato: 11/12-2024
+*
+* Beskrivelse: Program til at tælle forekomster af specifikke karakterer 
+* i en tekst. Programmet implementerer en funktion der tæller hvor mange
+* gange bestemte bogstaver (f.eks. vokaler) forekommer i en given tekst.
+*
+* Hovedfunktionalitet:
+* - Tæller specifikke karakterer i en tekst ved brug af pointere
+* - Håndterer både små og store bogstaver
+* - Inkluderer test med prædefineret eksempel
+* - Tillader brugerindtastning af tekst (op til 100 tegn)
+* 
+* Implementation er baseret på kapitel 7 om pointere og inkluderer
+* sikker input-håndtering samt const-kvalificerede parametre for
+* at beskytte input-data.
+*********************************************************************/
+
 #include <stdio.h>   // Inkluderer standard input/output bibliotek
 #include <string.h>  // Inkluderer string-håndteringsbibliotek
+
+// Dansk sprog i terminalen
+#include <wchar.h>    // For wide character support
+#include <windows.h>  // For Windows console functions
 
 /**
  * Tæller antallet af karakterer fra 'text' som findes i 'set'.
@@ -36,9 +61,17 @@ int countCharactersInSet(const char* text, const char* set)
 
 int main()
 {
-    const int maxlength = 100;           // Definerer maksimal længde for inputtekst
-    char mytext[maxlength];              // Array til at indeholde inputteksten
-    const char* vowels = "aeiouAEIOU";   // Streng med alle vokaler (små og store)
+    // Set console to use UTF-8
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+
+    const int maxlength = 100;                    // Definerer maksimal længde for inputtekst
+    char mytext[maxlength];                       // Array til at indeholde inputteksten
+    const char* vowels = "aeiouyæøåAEIOUYÆØÅ";         // Streng med alle vokaler (små og store), inkl. 'y'
+
+    // Test med eksemplet fra opgaven
+    int example = countCharactersInSet("Denmark is a democratic country", vowels);
+    printf("Antal vokaler i eksempelteksten \"Denmark is a democratic country\": %d\n\n", example);
 
     // Prompter brugeren om at indtaste tekst
     printf("Indtast en tekst (max %d tegn): ", maxlength - 1);
